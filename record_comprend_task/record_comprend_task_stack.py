@@ -1,9 +1,9 @@
 from aws_cdk import (
-    core,
     aws_lambda,
     aws_events,
     aws_iam as iam,
     aws_dynamodb as aws_dynamodb
+    
 )
 
 import aws_cdk.aws_s3 as _s3
@@ -22,10 +22,12 @@ from aws_dynamodb import (
     BillingMode
 )
 """
+import aws_cdk as cdk
+import constructs 
 
-class RecordComprendTaskStack(core.Stack):
+class RecordComprendTaskStack(cdk.Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: constructs.Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
         
         #get context values
@@ -42,7 +44,7 @@ class RecordComprendTaskStack(core.Stack):
                 type=aws_dynamodb.AttributeType.STRING
             ),
             #stream=aws_dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
-            removal_policy=core.RemovalPolicy.DESTROY
+            removal_policy=cdk.RemovalPolicy.DESTROY
         )
 
         #tracking_task_table.table_stream_arn
@@ -62,7 +64,7 @@ class RecordComprendTaskStack(core.Stack):
                                                 handler="TrackContactTask.lambda_handler",
                                                 code=aws_lambda.Code.from_asset("./assets", exclude=["**", "!TrackContactTask.py"]),
                                                 description='Lambda function to track contact info and task created for the contact',
-                                                timeout=core.Duration.seconds(10),
+                                                timeout=cdk.Duration.seconds(10),
                                                 role=tracking_task_lambda_role,                                                
                                                 )
         
@@ -92,7 +94,7 @@ class RecordComprendTaskStack(core.Stack):
                                                 handler="ComprehendTask.lambda_handler",
                                                 code=aws_lambda.AssetCode("./assets", exclude=["**", "!ComprehendTask.py"]),
                                                 description='Lambda function to get the transcribed text, comprehend, and create task',
-                                                timeout=core.Duration.seconds(15),
+                                                timeout=cdk.Duration.seconds(15),
                                                 role=comprehend_task_lambda_role,
                                                 environment={
                                                     'INSTANCE_ID': instance_id,
